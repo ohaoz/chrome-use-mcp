@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+probe.mjs
+probe2.mjs
+api-doc.txt
+test-scroll.mjs
+cdp-mobile.png
+
+# OpenAI's proprietary browser-client bundle — never redistribute (see README Disclaimer).
+vendor/*
+!vendor/README.md
