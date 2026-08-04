@@ -4,8 +4,6 @@
 
 把 Codex 的 **Chrome("Control Chrome with Codex")插件**封装成 MCP server,让任何 MCP 客户端(Cursor、Claude Code 等)都能驱动你**真实的、已登录的 Chrome**——导航、DOM 快照、点击、输入、截图、运行 Playwright,以及原生 Chrome DevTools Protocol 调试。
 
-本项目是 [`codex-cua-mcp`](https://github.com/RS-Nocsi/codex-cua-mcp)(封装 Codex Computer Use)的浏览器控制姊妹项目。
-
 ## 工作原理
 
 与 Computer Use(自包含 `.exe`)不同,Chrome 插件是一个 Node bundle(`browser-client.mjs`),它通过 Codex 私有的命名管道和 Codex Chrome 扩展与 Chrome 通信:

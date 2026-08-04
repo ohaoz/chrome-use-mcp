@@ -4,8 +4,6 @@
 
 Exposes Codex's **Chrome ("Control Chrome with Codex") plugin** as an MCP server, so any MCP client (Cursor, Claude Code, etc.) can drive your **real, logged-in Chrome** — navigate, snapshot the DOM, click, type, screenshot, run Playwright, and more.
 
-This is the browser-control sibling of [`codex-cua-mcp`](https://github.com/RS-Nocsi/codex-cua-mcp) (which wraps Codex Computer Use).
-
 ## How it works
 
 Unlike Computer Use (a self-contained `.exe`), the Chrome plugin is a Node bundle (`browser-client.mjs`) that talks to Chrome through a Codex-owned native pipe and the Codex Chrome extension:
