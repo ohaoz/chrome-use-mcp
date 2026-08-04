@@ -40,16 +40,21 @@ Generic `mcpServers` example (use forward slashes on Windows):
     "codex-chrome": {
       "command": "node",
       "args": ["<ABSOLUTE_REPO_PATH>/bin/codex-chrome-mcp.js"],
-      "env": {
-        "CODEX_CHROME_SESSION_NAME": "🔎 Cursor",
-        "CODEX_CHROME_CLIENT": "<ABSOLUTE_REPO_PATH>/vendor/chrome-26.727.51351/scripts/browser-client.mjs"
-      }
+      "env": { "CODEX_CHROME_SESSION_NAME": "🔎 Cursor" }
     }
   }
 }
 ```
 
-`env` is optional: drop `CODEX_CHROME_CLIENT` to auto-detect the cache client instead — but raw CDP (`cdp_send`/`cdp_events`) then stops working until the cache ships a 26.727+ client.
+With no `CODEX_CHROME_CLIENT` the server auto-detects the client from your local plugin cache — everything except raw CDP works out of the box.
+
+*Only after* you have populated `vendor/` per [vendor/README.md](vendor/README.md) (raw CDP needs a 26.727+ client), add:
+
+```json
+"CODEX_CHROME_CLIENT": "<ABSOLUTE_REPO_PATH>/vendor/chrome-<version>/scripts/browser-client.mjs"
+```
+
+Do not add this line speculatively: a `CODEX_CHROME_CLIENT` pointing at a missing file makes the server fail fast at startup instead of falling back to auto-detection.
 
 For Cursor, add it to `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project).
 

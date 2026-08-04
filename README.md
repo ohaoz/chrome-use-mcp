@@ -1,5 +1,7 @@
 # Codex Chrome MCP
 
+**English** | [中文](README_CN.md)
+
 Exposes Codex's **Chrome ("Control Chrome with Codex") plugin** as an MCP server, so any MCP client (Cursor, Claude Code, etc.) can drive your **real, logged-in Chrome** — navigate, snapshot the DOM, click, type, screenshot, run Playwright, and more.
 
 This is the browser-control sibling of [`codex-cua-mcp`](https://github.com/RS-Nocsi/codex-cua-mcp) (which wraps Codex Computer Use).

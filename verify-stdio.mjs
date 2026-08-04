@@ -1,19 +1,42 @@
-// Simulate EXACTLY what Cursor does: spawn bin/codex-chrome-mcp.js as an MCP
-// stdio server, initialize, list tools, then drive a real CDP round-trip.
-// Proves the packaged entry point (not just the imported modules) works.
+// Simulate EXACTLY what an MCP client does: spawn bin/codex-chrome-mcp.js as
+// an MCP stdio server, initialize, list tools, then drive a real CDP
+// round-trip. Proves the packaged entry point (not just the imported modules)
+// works. Client resolution mirrors verify-cdp.mjs: env override, else the
+// newest vendored client, else the server's auto-detection.
 
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
+const repoRoot = path.dirname(fileURLToPath(import.meta.url));
+
+function findVendoredClient(root) {
+  try {
+    // Lexicographic sort is enough for the YY.WWW.BUILD version scheme.
+    const dirs = readdirSync(path.join(root, "vendor"))
+      .filter((n) => n.startsWith("chrome-"))
+      .sort()
+      .reverse();
+    for (const d of dirs) {
+      const c = path.join(root, "vendor", d, "scripts", "browser-client.mjs");
+      if (existsSync(c)) return c;
+    }
+  } catch {}
+  return null;
+}
+
+const env = { ...process.env, CODEX_CHROME_SESSION_NAME: "🧪 stdio verify" };
+if (!env.CODEX_CHROME_CLIENT) {
+  const vendored = findVendoredClient(repoRoot);
+  if (vendored) env.CODEX_CHROME_CLIENT = vendored;
+}
+
 const transport = new StdioClientTransport({
   command: "node",
-  args: ["G:/cursor/codex-chrome-mcp/bin/codex-chrome-mcp.js"],
-  env: {
-    ...process.env,
-    CODEX_CHROME_CLIENT:
-      "G:/cursor/codex-chrome-mcp/vendor/chrome-26.727.51351/scripts/browser-client.mjs",
-    CODEX_CHROME_SESSION_NAME: "🧪 stdio verify",
-  },
+  args: [path.join(repoRoot, "bin", "codex-chrome-mcp.js")],
+  env,
 });
 
 const client = new Client({ name: "verify-stdio", version: "1.0.0" }, { capabilities: {} });

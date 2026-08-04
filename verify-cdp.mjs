@@ -1,15 +1,42 @@
 // End-to-end CDP verification harness.
 //
-// Runs the BUILT MCP code (dist/) against the VENDORED 26.727 browser-client,
-// bypassing Cursor's MCP process entirely (same native pipe, separate session).
-// Proves: client loads, config shim satisfies the full-CDP gate, the cdp tab
-// capability is injected, cdp_send auto-attaches the debugger, commands return
-// results, and cdp_events delivers buffered events.
+// Runs the BUILT MCP code (dist/) against a 26.727+ browser-client,
+// bypassing the MCP client process entirely (same native pipe, separate
+// session). Proves: client loads, config shim satisfies the full-CDP gate,
+// the cdp tab capability is injected, cdp_send auto-attaches the debugger,
+// commands return results, and cdp_events delivers buffered events.
+//
+// Client resolution: CODEX_CHROME_CLIENT env if set; else the newest
+// vendored vendor/chrome-*/scripts/browser-client.mjs in this repo; else
+// the server's own auto-detection (raw CDP then needs a 26.727+ cache client).
 //
 // Usage: node verify-cdp.mjs
 
-process.env.CODEX_CHROME_CLIENT =
-  "G:/cursor/codex-chrome-mcp/vendor/chrome-26.727.51351/scripts/browser-client.mjs";
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const repoRoot = path.dirname(fileURLToPath(import.meta.url));
+
+function findVendoredClient(root) {
+  try {
+    // Lexicographic sort is enough for the YY.WWW.BUILD version scheme.
+    const dirs = readdirSync(path.join(root, "vendor"))
+      .filter((n) => n.startsWith("chrome-"))
+      .sort()
+      .reverse();
+    for (const d of dirs) {
+      const c = path.join(root, "vendor", d, "scripts", "browser-client.mjs");
+      if (existsSync(c)) return c;
+    }
+  } catch {}
+  return null;
+}
+
+if (!process.env.CODEX_CHROME_CLIENT) {
+  const vendored = findVendoredClient(repoRoot);
+  if (vendored) process.env.CODEX_CHROME_CLIENT = vendored;
+}
 process.env.CODEX_CHROME_SESSION_NAME = "🧪 CDP verify";
 
 const { callTool } = await import("./dist/server.js");
